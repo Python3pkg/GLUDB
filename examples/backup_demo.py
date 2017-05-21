@@ -68,7 +68,7 @@ def main():
         parsed = json.loads(backup.to_data())
         return json.dumps(parsed, indent=4, sort_keys=True)
     print("Backup completed: here's the backup object")
-    print(pretty_json(backup.to_data()))
+    print((pretty_json(backup.to_data())))
 
 if __name__ == "__main__":
     main()

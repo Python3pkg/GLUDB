@@ -77,7 +77,7 @@ class RawDiffTesting(unittest.TestCase):
         else:
             self.assertNotEquals(cmpfilt(new), cmpfilt(recover))
 
-        print("OLD:%s NEW:%s DIFF:%s RECOVER:%s" % (old, new, diff, recover))
+        print(("OLD:%s NEW:%s DIFF:%s RECOVER:%s" % (old, new, diff, recover)))
 
     def test_strings(self):
         self.assertDiffable('{}', '{}')
@@ -170,7 +170,7 @@ class VersionSavedTesting(unittest.TestCase):
 
             self.assertTrue(compare_data_objects(exp, actobj))
 
-        print(type(obj_hist[0][0]), obj_hist[0][0])
+        print((type(obj_hist[0][0]), obj_hist[0][0]))
         obj_hist_dct = [json.loads(o) for o, _ in obj_hist]
 
         # a little sanity checking

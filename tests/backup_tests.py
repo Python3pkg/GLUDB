@@ -35,13 +35,13 @@ class InheritedData(SimpleData, ComplexData):
 
 
 def no_blanks(t):
-    return list(filter(None, t))
+    return list([_f for _f in t if _f])
 
 
 def extract_backup(bucketname, keyname):
     """Return a dict of (table-name, JSON-list) from the specified backup"""
     filename = pth.join(S3_DIR, bucketname, keyname)
-    print("Opening backup archive %s" % filename)
+    print(("Opening backup archive %s" % filename))
 
     backup_dict = dict()
 
@@ -123,7 +123,7 @@ class BackupRunTesting(unittest.TestCase):
 
     def tearDown(self):
         # Undo any database setup
-        print('\n'.join(self.backup.backup_log))
+        print(('\n'.join(self.backup.backup_log)))
         gludb.config.clear_database_config()
 
     def assertObjEq(self, obj1, obj2):

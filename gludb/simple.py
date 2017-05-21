@@ -48,6 +48,7 @@ from .config import apply_db_application_prefix
 from .utils import now_field
 from .data import Storable, DatabaseEnabled, orig_version
 from .versioning import VersioningTypes, record_diff, append_diff_hist
+import collections
 
 
 class _NO_VAL:
@@ -66,7 +67,7 @@ class Field(object):
     def get_default_val(self):
         """Helper to expand default value (support callables)."""
         val = self.default
-        while callable(val):
+        while isinstance(val, collections.Callable):
             val = val()
         return val
 
@@ -79,7 +80,7 @@ def _auto_init(self, *args, **kwrds):
             val = fld.get_default_val()
         setattr(self, fld.name, val)
 
-    if callable(getattr(self, 'setup', None)):
+    if isinstance(getattr(self, 'setup', None), collections.Callable):
         self.setup(*args, **kwrds)
 
 # Sneaky trick - we tag __init__ functions that are Ok to be overwritten...
@@ -92,14 +93,14 @@ _auto_init._clobber_ok = True
 def ctor_overridable(cls):
     """Return true if cls has on overridable __init__."""
     prev_init = getattr(cls, "__init__", None)
-    if not callable(prev_init):
+    if not isinstance(prev_init, collections.Callable):
         return True
     if prev_init in [object.__init__, _auto_init]:
         return True
     if getattr(prev_init, '_clobber_ok', False):
         return True
 
-    print(cls, prev_init, getattr(prev_init, '_clobber_ok', 'missing'))
+    print((cls, prev_init, getattr(prev_init, '_clobber_ok', 'missing')))
     return False  # Not on our list
 
 
@@ -149,7 +150,7 @@ def _index_names(cls):
 def _indexes(self):
     def get_val(name):
         attr = getattr(self, name, None)
-        while callable(attr):
+        while isinstance(attr, collections.Callable):
             attr = attr()
         return attr
 

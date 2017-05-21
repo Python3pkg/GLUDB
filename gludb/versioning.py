@@ -20,7 +20,7 @@ class VersioningTypes(object):
 # Python 2&3 compatible string testing
 def _isstr(s):
     try:
-        _basestring = basestring
+        _basestring = str
     except NameError:
         _basestring = str
     return isinstance(s, _basestring)

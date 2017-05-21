@@ -207,7 +207,7 @@ class Backup(object):
         backup_file = NamedTemporaryFile(suffix=".tar.gz")
         backup_tarfile = tarfile.open(fileobj=backup_file, mode='w:gz')
 
-        for cls_name, cls in self.classes.items():
+        for cls_name, cls in list(self.classes.items()):
             self.log("Backing up %s", cls_name)
 
             rec_count = 0

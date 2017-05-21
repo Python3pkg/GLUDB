@@ -34,7 +34,7 @@ class Backend(object):
 
             if self.tl_count > 1 and self.filename == ":memory:":
                 err = "SQLite :memory: file not supported across multiple threads"
-                print(err + ". An exception will be thrown.")
+                print((err + ". An exception will be thrown."))
                 raise ValueError(err)
 
         return conn

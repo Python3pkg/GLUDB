@@ -47,7 +47,7 @@ import datetime
 import hashlib
 import os
 import os.path
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from tornado import escape
 from tornado import httpserver
@@ -88,24 +88,24 @@ class BaseRequestHandler(web.RequestHandler):
     def render_xml(self, value):
         assert isinstance(value, dict) and len(value) == 1
         self.set_header("Content-Type", "application/xml; charset=UTF-8")
-        name = value.keys()[0]
+        name = list(value.keys())[0]
         parts = []
         parts.append('<' + escape.utf8(name) +
                      ' xmlns="http://doc.s3.amazonaws.com/2006-03-01">')
-        self._render_parts(value.values()[0], parts)
+        self._render_parts(list(value.values())[0], parts)
         parts.append('</' + escape.utf8(name) + '>')
         self.finish('<?xml version="1.0" encoding="UTF-8"?>\n' +
                     ''.join(parts))
 
     def _render_parts(self, value, parts=[]):
-        if isinstance(value, (unicode, bytes)):
+        if isinstance(value, (str, bytes)):
             parts.append(escape.xhtml_escape(value))
-        elif isinstance(value, int) or isinstance(value, long):
+        elif isinstance(value, int) or isinstance(value, int):
             parts.append(str(value))
         elif isinstance(value, datetime.datetime):
             parts.append(value.strftime("%Y-%m-%dT%H:%M:%S.000Z"))
         elif isinstance(value, dict):
-            for name, subvalue in value.iteritems():
+            for name, subvalue in value.items():
                 if not isinstance(subvalue, list):
                     subvalue = [subvalue]
                 for subsubvalue in subvalue:
@@ -148,8 +148,8 @@ class BucketHandler(BaseRequestHandler):
     SUPPORTED_METHODS = ("PUT", "GET", "DELETE", "HEAD")
 
     def get(self, bucket_name):  # NOQA
-        prefix = self.get_argument("prefix", u"")
-        marker = self.get_argument("marker", u"")
+        prefix = self.get_argument("prefix", "")
+        marker = self.get_argument("marker", "")
         max_keys = int(self.get_argument("max-keys", 50000))
         path = os.path.abspath(os.path.join(self.application.directory,
                                             bucket_name))
@@ -242,18 +242,18 @@ class ObjectHandler(BaseRequestHandler):
             etag = hashlib.md5(
                 open(self.object_file_name, 'rb').read()
             ).hexdigest()
-            print("Calculated file etag: %s [on %s]" % (
+            print(("Calculated file etag: %s [on %s]" % (
                 etag,
                 self.object_file_name
-            ))
+            )))
         else:
             etag = super(ObjectHandler, self).compute_etag()
-            print("Default etag: " + etag)
+            print(("Default etag: " + etag))
 
         return etag
 
     def get(self, bucket, object_name):
-        object_name = urllib.unquote(object_name)
+        object_name = urllib.parse.unquote(object_name)
         path = self._object_path(bucket, object_name)
         if not path.startswith(self.application.directory) or \
            not os.path.isfile(path):
@@ -274,7 +274,7 @@ class ObjectHandler(BaseRequestHandler):
             object_file.close()
 
     def put(self, bucket, object_name):
-        object_name = urllib.unquote(object_name)
+        object_name = urllib.parse.unquote(object_name)
         bucket_dir = os.path.abspath(os.path.join(
             self.application.directory, bucket))
         if not bucket_dir.startswith(self.application.directory) or \
@@ -298,7 +298,7 @@ class ObjectHandler(BaseRequestHandler):
         self.finish()
 
     def delete(self, bucket, object_name):
-        object_name = urllib.unquote(object_name)
+        object_name = urllib.parse.unquote(object_name)
         path = self._object_path(bucket, object_name)
         if not path.startswith(self.application.directory) or \
            not os.path.isfile(path):
